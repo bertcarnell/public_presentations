@@ -1,0 +1,65 @@
+/* transition slides for section headers */
+slides > slide.dark > hgroup > h2 {
+  color: #FFFFFF !important;
+}
+
+/* All slides */
+slides > slide > hgroup > h2 {
+  color: #69BE28 !important;
+}
+
+slides > slide:not(.nobackground):after{
+  bottom: 15px !important; /*20px default*/
+  right: 30px !important; /*60px default*/
+}
+
+/* Title Slide */
+.title-slide > hgroup {
+  position: absolute !important;
+  top: 250px !important;
+  left: 400px !important;
+}
+
+.title-slide > hgroup > h1 {
+  color: #69BE28 !important;
+  background-color: #FFFFFF !important;
+  width: 475px !important;
+  font-size: 50pt !important;
+}
+
+.title-slide > hgroup > h2 {
+  color: #FF7900 !important;
+  background-color: #FFFFFF !important;
+  width: 475px !important;
+}
+
+.title-slide > hgroup > p {
+  color: #FF7900 !important;
+}
+
+/* Titel slide logo */
+.gdbar img {
+  width: 250px !important;
+  height: 80px !important;
+  margin: 8px 8px !important;
+}
+
+.gdbar {
+  width: 266px !important;
+  height: 96px !important;
+  left: 400px !important; /* default -1px */
+  top: 100px !important; /*  default 125px */
+  background: none !important;
+  background-color: #FFFFFF !important;
+}
+
+/* drop the lower left logo on non-title pages */
+slides > slide:not(.nobackground):before {
+  opacity: 0;
+}
+
+/* code blocks */
+slides > slide > article > pre {
+  left: 10px !important; /* default -60px */
+  width: 100% !important; /* default 106% */
+}

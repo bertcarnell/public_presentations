@@ -1,0 +1,274 @@
+---
+title: "Machine Learning With R"
+subtitle: "Rob Carnell, Huntington, Enterprise Analytics Director"
+author: ""
+date: "May 31, 2019"
+output: 
+  ioslides_presentation:
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Outline
+
+- Introduction
+- AI and Machine Learning
+- Get Started
+- Example with Code!
+- Continued Learning
+
+# What does the R in Rob stand for? 
+
+## A Little About Me
+
+- B.S. Physics
+- US Navy Nuclear Engineer - Submarines
+- M.S. Statistics, MEM in Engineering Mgt
+- Battelle for 10 years
+    - Computer science in C/C++, Java, FORTRAN, python, C# / ASP.NET
+    - Data science in R + SAS (Machine Learning, Statistics, Bayesian Analysis)
+    - Database management
+    - High performance Beowulf cluster administration
+- Huntington for 4 years
+    - Most recently as the Enterprise Analytics Director
+
+## What is R / RStudio / CRAN?
+
+- ![R Logo](img/Rlogo_66_44.png) 
+    -"R is a free software environment for statistical computing and graphics."
+    - **Free** like "free beer", and **Free** like "freedom to modify, extend, 
+    and distribute" the source
+    - Technically, a functional scripting language with object oriented
+    programming options.  C and Fortran under the hood.
+- ![R Studio](img/RStudio-Logo-Blue-Gray-125_v2.png)  
+    - An Integrated Development Environment (IDE) for programming in R
+- **CRAN** (The Comprehensive R Archive Network):  A world-wide mirrored repository
+of curated extensions (packages) for the R environment.
+
+# AI and Machine Learning
+
+## What are Artificial Intelligence and Machine Learning?
+
+- **AI**:  Definition is changing everyday.  AI is anything cool you do with a computer.  
+- **Machine Learning**: Process of fitting algorithm parameters to data to optimize
+a metric (minimize error, maximize AUC, minimize cost, etc.)
+    - **Statistical Learning / Modeling**: Process of estimating algorithm parameter values 
+    from data, often using
+    statistical distribution theory (minimize error, maximize likelihood, etc) 
+        - **Bayesian Learnng / Modeling**:  Process of constructing posterior distributions for
+        algorithm parameters given data and prior distributions
+
+## Rob's Definition of AI {.smaller}
+
+- ![HAL 9000](img/HAL9000_44_72.jpg) 
+    - HAL: *The 9000 series is the most reliable computer ever made. No 9000 computer has 
+ever made a mistake or distorted information. We are all, by any practical 
+definition of the words, foolproof and incapable of error.*
+    - Dave: *Open the pod bay doors, HAL.*
+    - HAL: *I'm sorry, Dave. I'm afraid I can't do that.*
+- ![WOPR](img/wargames_150_88.jpg)
+    - David:  *How about Global Thermonuclear War?*
+    - WOPR / Joshua:  *How about a nice game of chess?*
+- **JARVIS** (for the Millenials)
+    - *As you wish, sir. I've also prepared a safety briefing for you to entirely ignore.*
+
+## Other confusing definitions continued...
+
+The previous definitions were examples of *Supervised* learning where a **True** response
+exists and can be correlated with the *covariates* or *predictor variables*.  *Unsupervised* 
+learning seeks a pattern when the response or class is not known for an observation, e.g. clustering.
+
+*Structured Data* contains observations which fit into numerical or categorical types and
+are the same for each observation, e.g. blood pressure at the doctor's office.  *Unstructured Data*
+can have any format or length recorded for an observation.
+
+Most algorithms need to bring structure to data to work.
+
+## Example Equations for Regression {.smaller}
+
+- **Machine Learning**: $y = X \theta$
+    - Minimize $\sum (y - X \theta)^2 + \sum \theta^2$
+    - Usually an iterative solution (gradient descent, backpropagation, etc.)
+- **Statistical Modeling**: $y = X \theta + \epsilon,\ \ \epsilon \sim N(0, \sigma^2)$
+    - Analytical Solution $\hat\theta = (X^TX)^{-1}X^Ty$
+        - BLUE (Best Linear Unbiased Estimator), minimum variance, maximum likelihood, minimum error
+    - Otherwise, use iterative solutions (maximum likelihood, EM algorithm, etc.)
+- **Bayesian Modeling**:  $P(\theta | X) \propto P(\theta) P(X | \theta)$
+    - Analytical solution for conjugate priors
+    - MCMC (Markov Chain Monte Carlo) solutions otherwise
+
+# Get Started
+
+## How do we get started with R and use it for Machine Learning? {.smaller}
+
+- R:  https://www.r-project.org/
+- RStudio: https://www.rstudio.com/
+- Git: https://gitforwindows.org/
+- tortoiseGit: https://tortoisegit.org/
+- Trello: https://trello.com/en-US
+- Github: https://github.com/
+
+## R package: `caret`
+
+- Most common pacakge for a wide variety of machine learning tasks in R including
+R packages and connections to TensorFlow and Keras
+- Makes the process of Training, Validation, Cross Validation, Testing, and
+Prediction extremely easy
+- It does not save you from bad practices.  That is still up to you.
+
+# Example with Code
+
+```{r require, eval=TRUE, include=FALSE}
+# if not already installed, install necessary packages
+if (!require(caret)) install.packages("caret")
+if (!require(R.matlab)) install.packages("R.matlab")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(nnet)) install.packages("nnet")
+if (!require(e1071)) install.packages("e1071")
+```
+
+## Example Neural Network for handwriting classification {.smaller}
+
+- Data comes from:
+    - [Coursera Machine Learning](https://www.coursera.org/learn/machine-learning) 
+class
+    - [MNIST](http://yann.lecun.com/exdb/mnist/) handwriting data
+
+```{r read, echo=TRUE}
+# read the MNIST data using the R.matlab package
+#   R.matlab = package namespace
+#   readMat = function in that package
+#   <- = R's assignment operator
+#   file.path = function for platform independent paths
+ex4data <- R.matlab::readMat(file.path("data", "ex4data1.mat"))
+ex4weights <- R.matlab::readMat(file.path("data", "ex4weights.mat"))
+```
+
+## Plot the Handwritten Numerals {.smaller}
+
+```{r plot_numerals, echo=TRUE}
+# set the random number seed to pick numerals to visualize
+set.seed(1976)
+# extract some data to visualize
+df1 <- data.frame(x = rep(seq(0.5, 19.5), each = 20), 
+                  y = rep(seq(-0.5, -19.5), times = 20), 
+                  grouprow = rep(1:10, each = 400, times = 10),
+                  groupcol = rep(1:10, each = 4000), 
+                  value = c(t(ex4data$X[sample(1:5000, 100),])))
+# create a greyscale raster plot using ggplot2
+g1 <- ggplot(df1, aes(x = x, y = y, fill = value)) + 
+  geom_raster() + facet_grid(grouprow ~ groupcol) +
+  scale_fill_continuous(high = "white", low = "black", guide = "none") +
+  theme_bw(base_size = 14) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(), axis.title.y = element_blank(),
+        axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+        strip.background = element_blank(), strip.text.x = element_blank(),
+        strip.text.y = element_blank())
+```
+
+## Plot the Handwritten Numerals (cont)
+
+```{r plot_numerals_figure, echo=FALSE}
+plot(g1)
+```
+
+## Build the Classifier {.smaller}
+
+```{r pre_build_classifier, echo=FALSE}
+rerun <- FALSE
+```
+
+```{r build_classifier, echo=TRUE}
+if (rerun) {
+  # split the data into train and test
+  set.seed(20011)
+  ind_test <- sample(1:nrow(ex4data$X), size = 500, replace = FALSE)
+  train_data <- as.data.frame(ex4data$X[-ind_test,])
+  train_truth <- factor(ex4data$y[-ind_test], levels = 1:10)
+  test_data <- as.data.frame(ex4data$X[ind_test,])
+  test_truth <- factor(ex4data$y[ind_test], levels = 1:10)
+  # a small cross-validation process for illustration
+  #  size is the size of the hidden layer
+  #  decay is the regularization parameter
+  tc <- trainControl(method = "repeatedcv", number = 3, repeats = 2)
+  nn1 <- train(x = train_data, y = train_truth, method = "nnet",
+               trControl = tc, tuneGrid = expand.grid(size = c(7,10,13),
+                                                      decay = c(1E-4, 2E-4)),
+               trace = FALSE, MaxNWts = 10000)
+  save(train_data, train_truth, test_data, test_truth, nn1,
+       file = file.path("data", "training_example_model.Rdata"))
+}
+```
+
+```{r post_build_classifier, echo=FALSE}
+if (!rerun) load(file.path("data", "training_example_model.Rdata"))
+```
+
+## Check the Accuracy and Select the Tuning Parameters {.smaller}
+
+```{r classifier_accuracy, echo=TRUE, fig.height=3, fig.width=5}
+plot(nn1)
+```
+
+## Test the Classifier on One image {.smaller}
+
+```{r single_test, echo=FALSE, fig.width = 1, fig.height = 1}
+df1 <- data.frame(x = rep(seq(0.5, 19.5), each = 20), 
+                  y = rep(seq(-0.5, -19.5), times = 20), 
+                  value = unlist(test_data[1,]))
+g1 <- ggplot(df1, aes(x = x, y = y, fill = value)) + 
+  geom_raster() + 
+  scale_fill_continuous(high = "white", low = "black", guide = "none") +
+  theme_bw(base_size = 14) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(), axis.title.y = element_blank(),
+        axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+        strip.background = element_blank(), strip.text.x = element_blank(),
+        strip.text.y = element_blank())
+plot(g1)
+```
+
+```{r single_test_code, echo=TRUE}
+cat("Truth: ", test_truth[1], "\n")
+test_pred <- predict(nn1, newdata = test_data)
+cat("Prediction:", test_pred[1], "\n")
+```
+
+## Test the Classifier on all Test Images {.smaller}
+
+```{r test_classifier, echo=TRUE}
+cfm <- confusionMatrix(test_pred, reference = test_truth)
+cfm$table
+scales::percent(cfm$overall["Accuracy"])
+```
+
+# Continued Learning
+
+## What are some resources to learn more about R and machine learning? {.smaller}
+
+- **Online:**
+    - [Coursera Machine Learning](https://www.coursera.org/learn/machine-learning)
+    - [Elements of Statistical Learning](https://web.stanford.edu/~hastie/ElemStatLearn/)
+    - [An Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/)
+    - [caret Pacakge](http://topepo.github.io/caret/index.html)
+    - [Kaggle](https://www.kaggle.com/)
+- **Back to School:**
+    - [Ohio State - Department of Computer Science and Engineering](https://cse.osu.edu/)
+- **Meet people:**
+    - [Columbus Data Science Meetup](https://www.meetup.com/Columbus-Data-Science/)
+    - [Columbus Machine Learners Meetup](https://www.meetup.com/Columbus-Machine-Learners/)
+    - [R-Ladies Meetup](https://www.meetup.com/rladies-columbus/)
+
+## This Presentation is an example of Literate Programming
+
+- Code attached to meeting invite used to create this `ioslides` presentation in html
+- R Markdown Syntax - combination of `markdown`, `pandoc`, and an `R` pre-parser
+- All the code and information required to reproduce the presentation are included
+which makes collaboration and presentation seamless
+- Try it out!
+
+
