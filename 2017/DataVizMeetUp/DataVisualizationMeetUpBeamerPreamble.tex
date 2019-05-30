@@ -1,0 +1,34 @@
+% packages
+\usepackage{hyperref}
+
+% hyperlink colors
+\definecolor{links}{HTML}{2A1B81}
+\hypersetup{colorlinks,linkcolor=,urlcolor=links}
+
+%% change fontsize of R code
+\let\oldShaded\Shaded
+\let\endoldShaded\endShaded
+\renewenvironment{Shaded}{\small\oldShaded}{\endoldShaded}
+
+%% change fontsize of output
+%\let\oldverbatim\verbatim
+%\let\endoldverbatim\endverbatim
+%\renewenvironment{verbatim}{\small\oldverbatim}{\endoldverbatim}
+
+% declare overall beamer theme to use as baseline
+%\usetheme{default}
+
+% make code-output smaller
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{fontsize=\tiny,commandchars=\\\{\}}
+
+% make console-output smaller:
+\makeatletter
+\def\verbatim{\tiny\@verbatim \frenchspacing\@vobeyspaces \@xverbatim}
+\makeatother
+
+\setlength{\parskip}{0pt}
+
+\setlength{\OuterFrameSep}{-4pt}
+\makeatletter
+\preto{\@verbatim}{\topsep=-10pt \partopsep=-10pt }
+\makeatother
